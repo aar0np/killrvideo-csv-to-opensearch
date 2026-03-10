@@ -26,7 +26,9 @@ import org.slf4j.LoggerFactory;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CsvToOpenSearchLoader {
@@ -106,23 +108,34 @@ public class CsvToOpenSearchLoader {
                  .build();
             
             CSVParser csvParser = csvFormat.parse(reader);
-
+            List<String> uniqueList = new ArrayList<>();
+            
+            
             for (CSVRecord csvRecord : csvParser) {
                 Map<String, Object> document = new HashMap<>();
                 
                 // Convert CSV record to a map
                 csvRecord.toMap().forEach(document::put);
                 
-                // Create index request
-                IndexRequest indexRequest = new IndexRequest
-                		.Builder()
-                		.index(indexName)
-                		.document(document)
-                		.build();
-                
-                client.index(indexRequest);
-                
-                recordCount++;
+                if (document.containsKey("name")) {
+
+                	String name = document.get("name").toString();
+                	
+                	// don't add the same video twice
+                	if (!uniqueList.contains(name)) {
+		                // Create index request
+		                IndexRequest indexRequest = new IndexRequest
+		                		.Builder()
+		                		.index(indexName)
+		                		.document(document)
+		                		.build();
+		                
+		                client.index(indexRequest);
+		                
+		                uniqueList.add(name);
+		                recordCount++;
+                	}
+                }
             }
                         
             logger.info("Successfully indexed {} total records into index '{}'", recordCount, indexName);
