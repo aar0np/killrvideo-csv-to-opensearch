@@ -20,9 +20,6 @@ import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.transport.OpenSearchTransport;
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -32,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 public class CsvToOpenSearchLoader {
-
-    private static final Logger logger = LoggerFactory.getLogger(CsvToOpenSearchLoader.class);
 
     private final String opensearchHost;
     private final int opensearchPort;
@@ -55,7 +50,7 @@ public class CsvToOpenSearchLoader {
         	this.opensearchPort = Integer.parseInt(System.getenv("OPENSEARCH_PORT"));
         } else {
         	this.opensearchPort = 9200;
-        } 
+        }
     }
 
     private OpenSearchClient createClient() throws Exception {
@@ -96,7 +91,7 @@ public class CsvToOpenSearchLoader {
      * @throws IOException If file reading or indexing fails
      */
     public void loadCsvToOpenSearch(String csvFilePath) throws IOException {
-        logger.info("Starting CSV load from: {}", csvFilePath);
+        System.out.printf("Starting CSV load from: %s\n", csvFilePath);
         int recordCount = 0;
         
         try  {
@@ -138,10 +133,10 @@ public class CsvToOpenSearchLoader {
                 }
             }
                         
-            logger.info("Successfully indexed {} total records into index '{}'", recordCount, indexName);
+            System.out.printf("Successfully indexed %d total records into index '%s'\n", recordCount, indexName);
             
         } catch (Exception e) {
-            logger.error("Error loading CSV to OpenSearch", e);
+            System.out.printf("Error loading CSV to OpenSearch: %s\n", e);
             throw new IOException("Failed to load CSV to OpenSearch", e);
         }
     }
@@ -166,10 +161,10 @@ public class CsvToOpenSearchLoader {
             CsvToOpenSearchLoader loader = new CsvToOpenSearchLoader(indexName);
             loader.loadCsvToOpenSearch("data/" + csvFile);
 
-            logger.info("CSV load completed successfully!");
+            System.out.println("CSV load completed successfully!");
 
         } catch (Exception e) {
-            logger.error("Failed to load CSV", e);
+        	System.out.printf("Failed to load CSV: %s\n", e);
             System.exit(1);
         }
     }
